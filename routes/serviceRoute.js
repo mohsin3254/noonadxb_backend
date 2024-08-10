@@ -11,5 +11,6 @@ router.get("/allservices", getAllServices);
 router.post("/servicebyid", getServiceById);
 router.post("/addservice", addService);
 router.delete("/:id", deleteService);
+
 router.get("/getservicebyid", getServiceById);
 module.exports = router;

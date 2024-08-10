@@ -34,31 +34,20 @@ exports.addService = async (req, res) => {
   }
 };
 
-/*
 exports.deleteService = async (req, res) => {
   try {
     const { id } = req.params;
-    await Service.findByIdAndDelete(id);
-    res.json({ message: "Service deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-*/
-
-exports.deleteService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log(`Attempting to delete service with ID: ${id}`);
+    console.log(`Attempting to delete service with ID: ${id}`); // Log the ID
     const service = await Service.findByIdAndDelete(id);
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
 
+    console.log(`Service with ID: ${id} deleted successfully`);
     res.json({ message: "Service deleted successfully" });
   } catch (error) {
-    console.error("Error deleting service:", error);
+    console.error("Error deleting service:", error); // Log the error
     res.status(500).json({ message: error.message });
   }
 };
