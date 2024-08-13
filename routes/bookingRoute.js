@@ -1111,6 +1111,7 @@ router.post("/cancelbooking", async (req, res) => {
   }
 });
 
+/*
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1159,6 +1160,69 @@ router.post("/bookservice", async (req, res) => {
           totalamount: totalAmount,
           transactionid: uuidv4(),
           userid, // Ensure userid is included
+        });
+
+        await newBooking.save();
+
+        res.send("Payment Successful, Your Service is booked");
+      } catch (error) {
+        return res.status(400).json({ message: error.message });
+      }
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+*/
+
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid, // userid is now optional
+  } = req.body;
+
+  try {
+    // Create customer
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    // Charge payment
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    // Payment Success
+    if (payment) {
+      try {
+        // Save booking
+        const newBooking = new Booking({
+          service: service.name,
+          serviceid: service._id,
+          name,
+          phone,
+          date: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"), // Use ISO format
+          time,
+          address,
+          totalamount: totalAmount,
+          transactionid: uuidv4(),
+          userid: userid || null, // Associate with user if logged in, else null
         });
 
         await newBooking.save();
