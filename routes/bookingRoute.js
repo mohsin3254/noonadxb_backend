@@ -1249,7 +1249,7 @@ router.post("/bookservice", async (req, res) => {
     address,
     totalAmount,
     token,
-    userid, // This can be optional
+    userid,
   } = req.body;
 
   try {
@@ -1271,26 +1271,27 @@ router.post("/bookservice", async (req, res) => {
     );
 
     if (payment) {
-      try {
-        const newBooking = new Booking({
-          service: service.name,
-          serviceid: service._id,
-          name,
-          phone,
-          date: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"),
-          time,
-          address,
-          totalamount: totalAmount,
-          transactionid: uuidv4(),
-          userid: userid ? userid : null, // Set userid to null if not provided
-        });
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+      };
 
-        await newBooking.save();
-
-        res.send("Payment Successful, Your Service is booked");
-      } catch (error) {
-        return res.status(400).json({ message: error.message });
+      // Only add userid if it's provided and valid
+      if (userid && mongoose.Types.ObjectId.isValid(userid)) {
+        newBookingData.userid = userid;
       }
+
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
     }
   } catch (error) {
     return res.status(400).json({ message: error.message });
