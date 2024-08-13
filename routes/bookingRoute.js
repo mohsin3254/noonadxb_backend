@@ -1162,7 +1162,7 @@ router.post("/bookservice", async (req, res) => {
         serviceid: service._id,
         name,
         phone,
-        date: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"),
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
         time,
         address,
         totalamount: totalAmount,
