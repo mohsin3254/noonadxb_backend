@@ -2,16 +2,6 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-/*
-router.post("/register", async (req, res) => {
-  try {
-    const newUser = new User(req.body);
-    await newUser.save();
-    res.status(201).send("User Registered Successfully");
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});  */
 
 router.post("/register", async (req, res) => {
   try {
@@ -26,6 +16,30 @@ router.post("/register", async (req, res) => {
     res.status(201).send("User Registered Successfully");
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+// In userRoute.js
+
+router.post("/guestlogin", (req, res) => {
+  try {
+    const guestUser = {
+      _id: "guestUser", // You can generate a unique ID if needed
+      name: "Guest User",
+      isAdmin: false,
+    };
+
+    const token = jwt.sign(
+      { _id: guestUser._id, isAdmin: guestUser.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res
+      .header("Authorization", `Bearer ${token}`)
+      .send({ token, user: guestUser });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   }
 });
 
