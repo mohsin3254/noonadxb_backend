@@ -44,6 +44,7 @@ const bookingSchema = new mongoose.Schema(
     userid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
       required: false, // Make userid optional
     },
     status: { type: String, default: "booked" },
