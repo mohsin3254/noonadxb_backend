@@ -950,8 +950,13 @@ router.post("/getbookingbyuserid", async (req, res) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
+    // Check if userid is valid ObjectId, else treat it as null for guest users
+    const userIdToQuery = mongoose.Types.ObjectId.isValid(userid)
+      ? userid
+      : null;
+
     // Fetch bookings for user or guest
-    const bookings = await Booking.find({ userid }).populate(
+    const bookings = await Booking.find({ userid: userIdToQuery }).populate(
       "serviceid",
       "name"
     );
@@ -960,7 +965,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
@@ -1045,6 +1049,66 @@ router.post("/bookservice", async (req, res) => {
       } catch (error) {
         return res.status(400).json({ message: error.message });
       }
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+*/
+/*
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid,
+  } = req.body;
+
+  try {
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    if (payment) {
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+      };
+
+      // Only add userid if it's provided and valid
+      if (userid && mongoose.Types.ObjectId.isValid(userid)) {
+        newBookingData.userid = userid;
+      }
+
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
     }
   } catch (error) {
     return res.status(400).json({ message: error.message });
