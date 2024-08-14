@@ -894,7 +894,7 @@ router.post("/bookroom", async (req, res) => {
   }
 });
 */
-
+/*
 const express = require("express");
 const moment = require("moment");
 const mongoose = require("mongoose");
@@ -930,20 +930,7 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
-/*
-router.post("/getbookingbyuserid", async (req, res) => {
-  const { userid } = req.body;
 
-  try {
-    // Fetch bookings for the given user ID
-    const bookings = await Booking.find({ userid }).sort({ createdAt: -1 });
-    res.json(bookings);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching bookings" });
-  }
-});
-*/
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -982,7 +969,7 @@ router.post("/cancelbooking", async (req, res) => {
   }
 });
 
-/*
+ this is extra
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1044,7 +1031,7 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-*/
+
 
 /*2nd upeer one is without guest
 router.post("/bookservice", async (req, res) => {
@@ -1108,7 +1095,7 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-*/
+
 
 router.post("/bookservice", async (req, res) => {
   const {
@@ -1155,6 +1142,136 @@ router.post("/bookservice", async (req, res) => {
       };
 
       // Only add userid if it's provided and valid
+      if (userid && mongoose.Types.ObjectId.isValid(userid)) {
+        newBookingData.userid = userid;
+      }
+
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports = router;
+
+*/
+
+const express = require("express");
+const moment = require("moment");
+const mongoose = require("mongoose");
+const stripe = require("stripe")("your_stripe_secret_key");
+const { v4: uuidv4 } = require("uuid");
+const Booking = require("../models/booking");
+const Service = require("../models/service");
+
+const router = express.Router();
+
+router.get("/service/:id", async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id);
+    if (!service) return res.status(404).json({ message: "Service not found" });
+    res.json(service);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching service" });
+  }
+});
+
+router.get("/getallbookings", async (req, res) => {
+  try {
+    const bookings = await Booking.find({})
+      .populate("serviceid", "name")
+      .sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching bookings" });
+  }
+});
+
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    const bookings = await Booking.find({ userid });
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.post("/cancelbooking", async (req, res) => {
+  const { bookingid, userid } = req.body;
+
+  try {
+    const booking = await Booking.findById(bookingid);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.userid && booking.userid.toString() !== userid) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    res.json({ message: "Booking cancelled successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cancelling booking" });
+  }
+});
+
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid,
+  } = req.body;
+
+  try {
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    if (payment) {
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+      };
+
       if (userid && mongoose.Types.ObjectId.isValid(userid)) {
         newBookingData.userid = userid;
       }
