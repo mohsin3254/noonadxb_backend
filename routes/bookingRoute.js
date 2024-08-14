@@ -977,7 +977,9 @@ router.post("/cancelbooking", async (req, res) => {
 
     if (!booking) {
       console.log("Booking not found");
-      return res.status(404).json({ message: "Booking not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
     }
 
     console.log("Booking found:", booking);
@@ -986,17 +988,23 @@ router.post("/cancelbooking", async (req, res) => {
     if (booking.userid) {
       if (booking.userid.toString() !== userid) {
         console.log("Unauthorized: Logged-in user ID does not match");
-        return res.status(403).json({ message: "Unauthorized" });
+        return res
+          .status(403)
+          .json({ success: false, message: "Unauthorized" });
       }
     } else if (!booking.userid && userid.startsWith("guest_")) {
       // Logic for guest users identified by a guestUserId
       if (booking.transactionid !== userid) {
         console.log("Unauthorized: Guest user ID does not match");
-        return res.status(403).json({ message: "Unauthorized" });
+        return res
+          .status(403)
+          .json({ success: false, message: "Unauthorized" });
       }
     } else {
       console.log("Invalid User ID");
-      return res.status(400).json({ message: "Invalid User ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid User ID" });
     }
 
     // Update the booking status to "cancelled"
@@ -1004,10 +1012,12 @@ router.post("/cancelbooking", async (req, res) => {
     await booking.save();
 
     console.log("Booking cancelled successfully");
-    res.json({ message: "Booking cancelled successfully" });
+    res.json({ success: true, message: "Booking cancelled successfully" });
   } catch (error) {
     console.error("Error cancelling booking:", error);
-    res.status(500).json({ message: "Error cancelling booking" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error cancelling booking" });
   }
 });
 
