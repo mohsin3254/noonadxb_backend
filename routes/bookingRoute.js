@@ -965,27 +965,28 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
   try {
-    // Find the booking
+    // Find the booking by ID
     const booking = await Booking.findById(bookingid);
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // If the booking has a `userid`, check authorization for logged-in users
+    // Check if booking has a user ID (for logged-in users)
     if (booking.userid) {
       if (booking.userid.toString() !== userid) {
         return res.status(403).json({ message: "Unauthorized" });
       }
-    } else {
-      // For guest users, check if the booking is associated with the guest's ID
-      if (booking.guestUserId !== userid) {
-        // Assuming you store guest user ID in booking
+    } else if (!booking.userid && !userid) {
+      return res.status(400).json({ message: "Guest User ID missing" });
+    } else if (!booking.userid) {
+      // If booking has no `userid` (meaning it was made by a guest)
+      // Ensure that the `userid` passed in the request is actually the guest's ID (if needed, include a guest user identifier in the booking)
+      if (booking.transactionid !== userid) { // Assuming `transactionid` can act as a guest identifier
         return res.status(403).json({ message: "Unauthorized" });
       }
     }
