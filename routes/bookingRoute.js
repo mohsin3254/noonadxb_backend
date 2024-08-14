@@ -971,6 +971,7 @@ router.post("/cancelbooking", async (req, res) => {
 
   try {
     if (!bookingid || !userid) {
+      console.log("Error: Missing booking ID or user ID");
       return res
         .status(400)
         .json({
@@ -982,12 +983,15 @@ router.post("/cancelbooking", async (req, res) => {
     // Check if userid is a valid ObjectId, else treat it as a guest identifier
     const isValidUserId = mongoose.Types.ObjectId.isValid(userid);
     const userIdToQuery = isValidUserId ? userid : null;
+    const isGuest = !isValidUserId;
+
+    console.log("Cancel Booking Request:", { bookingid, userid, isGuest });
 
     // Find the booking by ID
     const booking = await Booking.findById(bookingid);
 
     if (!booking) {
-      console.log("Booking not found for ID:", bookingid);
+      console.log("Error: Booking not found for ID:", bookingid);
       return res
         .status(404)
         .json({ success: false, message: "Booking not found" });
@@ -1009,7 +1013,7 @@ router.post("/cancelbooking", async (req, res) => {
           .status(403)
           .json({ success: false, message: "Unauthorized" });
       }
-    } else if (!booking.userid && !isValidUserId) {
+    } else if (!booking.userid && isGuest) {
       // If the booking is for a guest
       if (booking.transactionid !== userid) {
         console.log(
