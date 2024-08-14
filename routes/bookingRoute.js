@@ -977,20 +977,18 @@ router.post("/cancelbooking", async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // Check if the booking was made by a logged-in user
+    // Logic for logged-in users with a valid user ID
     if (booking.userid) {
       if (booking.userid.toString() !== userid) {
         return res.status(403).json({ message: "Unauthorized" });
       }
-    }
-    // Check if the booking was made by a guest user
-    else if (!booking.userid && userid) {
+    } else if (!booking.userid && userid.startsWith("guest_")) {
+      // Logic for guest users identified by a guestUserId
       if (booking.transactionid !== userid) {
-        // Assuming `transactionid` is used as the guest identifier
         return res.status(403).json({ message: "Unauthorized" });
       }
     } else {
-      return res.status(400).json({ message: "Guest User ID missing" });
+      return res.status(400).json({ message: "Invalid User ID" });
     }
 
     // Update the booking status to "cancelled"
