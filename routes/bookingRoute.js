@@ -980,14 +980,12 @@ router.post("/cancelbooking", async (req, res) => {
         });
     }
 
-    // Check if userid is a valid ObjectId, else treat it as a guest identifier
     const isValidUserId = mongoose.Types.ObjectId.isValid(userid);
     const userIdToQuery = isValidUserId ? userid : null;
     const isGuest = !isValidUserId;
 
     console.log("Cancel Booking Request:", { bookingid, userid, isGuest });
 
-    // Find the booking by ID
     const booking = await Booking.findById(bookingid);
 
     if (!booking) {
@@ -999,9 +997,7 @@ router.post("/cancelbooking", async (req, res) => {
 
     console.log("Booking Found:", booking);
 
-    // Check if the booking is associated with a user
     if (booking.userid) {
-      // If the booking is for a logged-in user
       if (booking.userid.toString() !== userIdToQuery) {
         console.log(
           "Unauthorized access. Expected User ID:",
@@ -1014,7 +1010,6 @@ router.post("/cancelbooking", async (req, res) => {
           .json({ success: false, message: "Unauthorized" });
       }
     } else if (!booking.userid && isGuest) {
-      // If the booking is for a guest
       if (booking.transactionid !== userid) {
         console.log(
           "Unauthorized for guest. Expected Transaction ID:",
@@ -1033,7 +1028,6 @@ router.post("/cancelbooking", async (req, res) => {
         .json({ success: false, message: "Invalid User ID or Transaction ID" });
     }
 
-    // Update the booking status to "cancelled"
     booking.status = "cancelled";
     await booking.save();
     console.log("Booking cancelled successfully for ID:", bookingid);
@@ -1045,7 +1039,6 @@ router.post("/cancelbooking", async (req, res) => {
       .json({ success: false, message: "Error cancelling booking" });
   }
 });
-
 /*2nd upeer one is without guest
 router.post("/bookservice", async (req, res) => {
   const {
