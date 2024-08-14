@@ -942,13 +942,19 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });*/
-
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
   try {
+    if (!userid) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
     // Fetch bookings for user or guest
-    const bookings = await Booking.find({ userid });
+    const bookings = await Booking.find({ userid }).populate(
+      "serviceid",
+      "name"
+    );
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
