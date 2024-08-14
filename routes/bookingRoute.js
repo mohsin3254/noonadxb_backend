@@ -930,6 +930,18 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
+/*workinh without guest
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    // Fetch bookings for user or guest
+    const bookings = await Booking.find({ userid });
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});*/
 
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
@@ -942,6 +954,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
