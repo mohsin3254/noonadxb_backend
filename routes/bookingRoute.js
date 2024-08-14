@@ -971,7 +971,6 @@ router.post("/cancelbooking", async (req, res) => {
 
   try {
     if (!bookingid || !userid) {
-      console.log("Error: Missing booking ID or user ID");
       return res
         .status(400)
         .json({
@@ -980,65 +979,52 @@ router.post("/cancelbooking", async (req, res) => {
         });
     }
 
+    // Determine if userid is valid or a guest
     const isValidUserId = mongoose.Types.ObjectId.isValid(userid);
     const userIdToQuery = isValidUserId ? userid : null;
     const isGuest = !isValidUserId;
 
-    console.log("Cancel Booking Request:", { bookingid, userid, isGuest });
-
+    // Fetch the booking
     const booking = await Booking.findById(bookingid);
 
     if (!booking) {
-      console.log("Error: Booking not found for ID:", bookingid);
       return res
         .status(404)
         .json({ success: false, message: "Booking not found" });
     }
 
-    console.log("Booking Found:", booking);
-
+    // Authorization checks
     if (booking.userid) {
       if (booking.userid.toString() !== userIdToQuery) {
-        console.log(
-          "Unauthorized access. Expected User ID:",
-          booking.userid.toString(),
-          "Received:",
-          userIdToQuery
-        );
         return res
           .status(403)
           .json({ success: false, message: "Unauthorized" });
       }
     } else if (!booking.userid && isGuest) {
       if (booking.transactionid !== userid) {
-        console.log(
-          "Unauthorized for guest. Expected Transaction ID:",
-          booking.transactionid,
-          "Received:",
-          userid
-        );
         return res
           .status(403)
-          .json({ success: false, message: "Unauthorized" });
+          .json({ success: false, message: "Unauthorized for guest user" });
       }
     } else {
-      console.log("Invalid User ID or Transaction ID");
       return res
         .status(400)
         .json({ success: false, message: "Invalid User ID or Transaction ID" });
     }
 
+    // Cancel the booking
     booking.status = "cancelled";
     await booking.save();
-    console.log("Booking cancelled successfully for ID:", bookingid);
+
     res.json({ success: true, message: "Booking cancelled successfully" });
   } catch (error) {
-    console.error("Error in cancelling booking:", error);
+    console.error("Error cancelling booking:", error);
     res
       .status(500)
       .json({ success: false, message: "Error cancelling booking" });
   }
 });
+
 /*2nd upeer one is without guest
 router.post("/bookservice", async (req, res) => {
   const {
