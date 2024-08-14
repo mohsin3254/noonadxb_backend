@@ -970,24 +970,32 @@ router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
   try {
+    console.log("Cancel Booking Request:", { bookingid, userid });
+
     // Find the booking by ID
     const booking = await Booking.findById(bookingid);
 
     if (!booking) {
+      console.log("Booking not found");
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    console.log("Booking found:", booking);
 
     // Logic for logged-in users with a valid user ID
     if (booking.userid) {
       if (booking.userid.toString() !== userid) {
+        console.log("Unauthorized: Logged-in user ID does not match");
         return res.status(403).json({ message: "Unauthorized" });
       }
     } else if (!booking.userid && userid.startsWith("guest_")) {
       // Logic for guest users identified by a guestUserId
       if (booking.transactionid !== userid) {
+        console.log("Unauthorized: Guest user ID does not match");
         return res.status(403).json({ message: "Unauthorized" });
       }
     } else {
+      console.log("Invalid User ID");
       return res.status(400).json({ message: "Invalid User ID" });
     }
 
@@ -995,6 +1003,7 @@ router.post("/cancelbooking", async (req, res) => {
     booking.status = "cancelled";
     await booking.save();
 
+    console.log("Booking cancelled successfully");
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
     console.error("Error cancelling booking:", error);
