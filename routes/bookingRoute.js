@@ -965,6 +965,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
@@ -976,18 +977,26 @@ router.post("/cancelbooking", async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // Check if the user is authorized to cancel this booking
-    if (booking.userid.toString() !== userid) {
-      return res.status(403).json({ message: "Unauthorized" });
+    // If the booking has a `userid`, check authorization for logged-in users
+    if (booking.userid) {
+      if (booking.userid.toString() !== userid) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+    } else {
+      // For guest users, check if the booking is associated with the guest's ID
+      if (booking.guestUserId !== userid) {
+        // Assuming you store guest user ID in booking
+        return res.status(403).json({ message: "Unauthorized" });
+      }
     }
 
-    // Update the booking to "cancelled"
+    // Update the booking status to "cancelled"
     booking.status = "cancelled";
     await booking.save();
 
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Error cancelling booking:", error);
     res.status(500).json({ message: "Error cancelling booking" });
   }
 });
