@@ -20,7 +20,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-best;
 router.post("/guestlogin", (req, res) => {
   try {
     const guestUserId = uuidv4(); // Generate a unique guest ID
