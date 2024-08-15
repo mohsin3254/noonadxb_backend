@@ -44,7 +44,7 @@ router.post("/guestlogin", (req, res) => {
   }
 });
 
-/* Workinh without unique id
+/* Working without unique id
 router.post("/guestlogin", (req, res) => {
   try {
     const guestUser = {
