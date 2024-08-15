@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid"); // Add this import at the top
 
 router.post("/register", async (req, res) => {
   try {
@@ -19,8 +20,30 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// In userRoute.js
+router.post("/guestlogin", (req, res) => {
+  try {
+    const guestUserId = uuidv4(); // Generate a unique guest ID
+    const guestUser = {
+      _id: guestUserId,
+      name: "Guest User",
+      isAdmin: false,
+    };
 
+    const token = jwt.sign(
+      { _id: guestUser._id, isAdmin: guestUser.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res
+      .header("Authorization", `Bearer ${token}`)
+      .send({ token, user: guestUser, guestUserId }); // Include guestUserId in response
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+
+/* Workinh without unique id
 router.post("/guestlogin", (req, res) => {
   try {
     const guestUser = {
@@ -42,6 +65,7 @@ router.post("/guestlogin", (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
+*/
 
 router.post("/login", async (req, res) => {
   try {

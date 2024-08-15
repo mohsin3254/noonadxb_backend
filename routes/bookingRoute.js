@@ -942,6 +942,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });*/
+
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -971,12 +972,10 @@ router.post("/cancelbooking", async (req, res) => {
 
   try {
     if (!bookingid || !userid) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Booking ID and User ID are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Booking ID and User ID are required",
+      });
     }
 
     // Determine if userid is valid or a guest
@@ -1148,6 +1147,64 @@ router.post("/bookservice", async (req, res) => {
   }
 });
 */
+
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid,
+  } = req.body;
+
+  try {
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    if (payment) {
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+      };
+
+      if (userid && mongoose.Types.ObjectId.isValid(userid)) {
+        newBookingData.userid = userid;
+      }
+
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
 
 router.post("/bookservice", async (req, res) => {
   const {
