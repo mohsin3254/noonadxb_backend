@@ -943,6 +943,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });*/
 
+/*best for all
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -957,6 +958,23 @@ router.post("/getbookingbyuserid", async (req, res) => {
       : null;
 
     const bookings = await Booking.find({ userid: userIdToQuery });
+    res.json(bookings);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+*/
+
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    if (!userid) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Fetch bookings by user ID
+    const bookings = await Booking.find({ userid });
     res.json(bookings);
   } catch (error) {
     return res.status(400).json({ message: error.message });
