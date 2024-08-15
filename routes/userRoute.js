@@ -23,13 +23,15 @@ router.post("/register", async (req, res) => {
 router.post("/guestlogin", (req, res) => {
   try {
     // Generate a unique ID for the guest
-    const guestId = new mongoose.Types.ObjectId(); // or use another method to generate a unique ID
+    const guestId = new mongoose.Types.ObjectId(); // Generate a unique ID
+
     const guestUser = {
       _id: guestId,
       name: "Guest User",
       isAdmin: false,
     };
 
+    // Create a JWT token for the guest user
     const token = jwt.sign(
       { _id: guestUser._id, isAdmin: guestUser.isAdmin },
       process.env.JWT_SECRET,
@@ -38,9 +40,11 @@ router.post("/guestlogin", (req, res) => {
 
     res
       .header("Authorization", `Bearer ${token}`)
-      .send({ token, user: guestUser });
+      .status(200)
+      .json({ token, user: guestUser });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("Guest login failed:", error);
+    res.status(400).json({ message: "Guest login failed" });
   }
 });
 
