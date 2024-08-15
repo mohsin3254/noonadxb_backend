@@ -20,35 +20,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/guestlogin", (req, res) => {
-  try {
-    // Generate a unique ID for the guest
-    const guestId = new mongoose.Types.ObjectId(); // Generate a unique ID
-
-    const guestUser = {
-      _id: guestId,
-      name: "Guest User",
-      isAdmin: false,
-    };
-
-    // Create a JWT token for the guest user
-    const token = jwt.sign(
-      { _id: guestUser._id, isAdmin: guestUser.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res
-      .header("Authorization", `Bearer ${token}`)
-      .status(200)
-      .json({ token, user: guestUser });
-  } catch (error) {
-    console.error("Guest login failed:", error);
-    res.status(400).json({ message: "Guest login failed" });
-  }
-});
-
-/*best
+best;
 router.post("/guestlogin", (req, res) => {
   try {
     const guestUserId = uuidv4(); // Generate a unique guest ID
@@ -71,7 +43,6 @@ router.post("/guestlogin", (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-*/
 
 /* Workinh without unique id
 router.post("/guestlogin", (req, res) => {
