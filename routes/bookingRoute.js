@@ -1209,6 +1209,19 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
+router.get("/userbookings/:userid", async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    // Fetch bookings for a specific user or guest
+    const bookings = await Booking.find({ userid }).exec();
+
+    res.json(bookings);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 router.post("/bookservice", async (req, res) => {
   const {
     service,
