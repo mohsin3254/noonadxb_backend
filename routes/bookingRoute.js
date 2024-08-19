@@ -1209,13 +1209,25 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
-router.get("/userbookings/:userid", async (req, res) => {
+// routes/bookingRoute.js
+
+router.get("/mybookings", async (req, res) => {
+  const { userid, guestUserId } = req.query;
+
   try {
-    const { userid } = req.params;
+    let filter = {};
+    if (userid) {
+      if (!mongoose.Types.ObjectId.isValid(userid)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      filter.userid = userid;
+    } else if (guestUserId) {
+      filter.guestUserId = guestUserId;
+    } else {
+      return res.status(400).json({ message: "User ID or guest ID required" });
+    }
 
-    // Fetch bookings for a specific user or guest
-    const bookings = await Booking.find({ userid }).exec();
-
+    const bookings = await Booking.find(filter);
     res.json(bookings);
   } catch (error) {
     res.status(400).json({ message: error.message });
