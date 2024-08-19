@@ -981,7 +981,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });
 */
-/*
+
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -1005,7 +1005,9 @@ router.post("/getbookingbyuserid", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
-});*/
+});
+/*
+
 router.get("/getbookingsbyuserid/:userid", async (req, res) => {
   const { userid } = req.params;
 
@@ -1025,6 +1027,7 @@ router.get("/getbookingsbyuserid/:userid", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+*/
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
