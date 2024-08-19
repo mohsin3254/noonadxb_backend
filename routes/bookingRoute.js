@@ -964,7 +964,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });
 */
-
+/*issue with guest only
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -975,6 +975,32 @@ router.post("/getbookingbyuserid", async (req, res) => {
 
     // Fetch bookings by user ID
     const bookings = await Booking.find({ userid });
+    res.json(bookings);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+*/
+
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    if (!userid) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    let bookings;
+
+    // Check if userid is a valid ObjectId
+    if (mongoose.Types.ObjectId.isValid(userid)) {
+      // Fetch bookings by ObjectId
+      bookings = await Booking.find({ userid });
+    } else {
+      // Handle guest user bookings (if they have a different ID format)
+      bookings = await Booking.find({ guestUserId: userid });
+    }
+
     res.json(bookings);
   } catch (error) {
     return res.status(400).json({ message: error.message });
