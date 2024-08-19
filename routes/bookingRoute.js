@@ -1006,35 +1006,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });*/
-router.post("/getbookingbyuserid", async (req, res) => {
-  const { userid } = req.body;
-
-  try {
-    if (!userid) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-
-    let bookings;
-
-    // Check if userid is a valid ObjectId (for logged-in users)
-    if (mongoose.Types.ObjectId.isValid(userid)) {
-      bookings = await Booking.find({ userid });
-    } else {
-      // Handle guest user bookings by guestUserId
-      bookings = await Booking.find({ guestUserId: userid });
-    }
-
-    if (bookings.length === 0) {
-      return res.status(404).json({ message: "No bookings found" });
-    }
-
-    res.json(bookings);
-  } catch (error) {
-    console.error("Error fetching bookings:", error); // Log the error for debugging
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
 router.get("/getbookingsbyuserid/:userid", async (req, res) => {
   const { userid } = req.params;
 
