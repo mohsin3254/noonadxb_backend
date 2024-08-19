@@ -1009,16 +1009,22 @@ router.post("/getbookingbyuserid", async (req, res) => {
 router.get("/getbookingsbyuserid/:userid", async (req, res) => {
   const { userid } = req.params;
 
+  // Convert the userid to ObjectId if it's a valid MongoDB ObjectId
+  const userIdObjectId = mongoose.Types.ObjectId.isValid(userid)
+    ? mongoose.Types.ObjectId(userid)
+    : null;
+
   try {
-    const bookings = await Booking.find(
-      userid !== "null" ? { userid } : { userid: null }
-    );
-    res.send(bookings);
+    const query = userIdObjectId
+      ? { userid: userIdObjectId }
+      : { userid: null }; // Or handle accordingly if not found
+
+    const bookings = await Booking.find(query);
+    res.json(bookings);
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 });
-
 router.post("/cancelbooking", async (req, res) => {
   const { bookingid, userid } = req.body;
 
