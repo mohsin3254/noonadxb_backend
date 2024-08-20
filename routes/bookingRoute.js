@@ -930,7 +930,7 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
-/*workinh without guest
+/*workinh without guest*/
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -941,7 +941,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});*/
+});
 
 /*best for all 
 router.post("/getbookingbyuserid", async (req, res) => {
@@ -964,7 +964,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });
 */
-/*issue with guest only */
+/*issue with guest only 
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -980,7 +980,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-
+*/
 /*
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
