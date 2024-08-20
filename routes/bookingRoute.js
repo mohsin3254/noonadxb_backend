@@ -948,25 +948,19 @@ router.post("/getbookingbyuserid", async (req, res) => {
   try {
     let query;
 
-    // Check for guest user or valid MongoDB ObjectId
+    // If userid is not provided or equals "guest", assume it's a guest user
     if (!userid || userid === "guest") {
       query = { userid: null }; // Guest users have userid as null
     } else if (mongoose.Types.ObjectId.isValid(userid)) {
-      // Valid MongoDB ObjectId for logged-in users
+      // For logged-in users with a valid ObjectId
       query = { userid: mongoose.Types.ObjectId(userid) };
     } else {
-      // Invalid UserID format
+      // If the userid is neither null nor a valid ObjectId, return an error
       return res.status(400).json({ message: "Invalid User ID format" });
     }
 
-    // Log the query being executed
-    console.log("Executing query with:", query);
-
-    // Fetch bookings from the database
+    // Fetch bookings from the database based on the query
     const bookings = await Booking.find(query);
-
-    // Log the results
-    console.log("Fetched bookings:", bookings);
 
     if (bookings.length === 0) {
       return res
@@ -974,7 +968,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
         .json({ message: "No bookings found for the specified user." });
     }
 
-    // Respond with the bookings
     res.json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
