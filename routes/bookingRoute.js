@@ -930,7 +930,7 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
-/*workinh without  guest
+/*workinh without  guest */
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -940,41 +940,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-});  
-*/ router.post("/getbookingbyuserid", async (req, res) => {
-  const { userid } = req.body;
-
-  try {
-    let query;
-
-    // If userid is not provided or equals "guest", assume it's a guest user
-    if (userid === undefined || userid === null || userid === "guest") {
-      query = { userid: null }; // Guest users have userid as null
-    } else if (mongoose.Types.ObjectId.isValid(userid)) {
-      // For logged-in users with a valid ObjectId
-      query = { userid: mongoose.Types.ObjectId(userid) };
-    } else {
-      // If the userid is neither null nor a valid ObjectId, return an error
-      return res.status(400).json({ message: "Invalid User ID format" });
-    }
-
-    // Fetch bookings from the database based on the query
-    const bookings = await Booking.find(query);
-
-    if (bookings.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No bookings found for the specified user." });
-    }
-
-    res.json(bookings);
-  } catch (error) {
-    console.error("Error fetching bookings:", error);
-    res.status(500).json({
-      message: "An internal server error occurred while fetching bookings.",
-      error: error.message,
-    });
   }
 });
 
