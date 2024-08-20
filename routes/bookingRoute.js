@@ -943,7 +943,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });*/
 
-/*best for all
+/*best for all 
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -964,7 +964,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });
 */
-/*issue with guest only
+/*issue with guest only */
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -980,8 +980,8 @@ router.post("/getbookingbyuserid", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-*/
 
+/*
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
