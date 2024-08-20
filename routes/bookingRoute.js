@@ -1209,27 +1209,94 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
-// Fetch all bookings for a user or guest
+// routes/bookingRoute.js
+
 router.get("/mybookings", async (req, res) => {
   try {
     const { userid, guestUserId } = req.query;
 
+    // Ensure at least one ID is provided
     if (!userid && !guestUserId) {
       return res
         .status(400)
         .json({ message: "User ID or Guest User ID is required" });
     }
 
-    const query = userid ? { userid } : { userid: null }; // Fetch bookings for guest users
+    const query = userid ? { userid } : { guestUserId };
 
-    const bookings = await Booking.find(query).exec();
+    const bookings = await Booking.find(query);
 
     res.json(bookings);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 });
 
+module.exports = router;
+
+// routes/bookingRoute.js
+
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid,
+    guestUserId, // Add guestUserId
+  } = req.body;
+
+  try {
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    if (payment) {
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+        userid:
+          userid && mongoose.Types.ObjectId.isValid(userid) ? userid : null,
+        guestUserId: guestUserId || null,
+      };
+
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports = router;
+
+/*working very fine
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1288,5 +1355,5 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-
+*/
 module.exports = router;
