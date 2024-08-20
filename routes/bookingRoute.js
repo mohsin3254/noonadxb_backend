@@ -930,7 +930,29 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
-/*workinh without  guest */
+
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    let bookings;
+
+    if (mongoose.Types.ObjectId.isValid(userid)) {
+      // If userid is a valid ObjectId, search for bookings using ObjectId
+      bookings = await Booking.find({
+        userid: mongoose.Types.ObjectId(userid),
+      });
+    } else {
+      // If userid is a string (UUID), search for bookings using string
+      bookings = await Booking.find({ userid });
+    }
+
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+/*workinh without  guest 
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -941,7 +963,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+}); */
 
 /*best for all 
 router.post("/getbookingbyuserid", async (req, res) => {
