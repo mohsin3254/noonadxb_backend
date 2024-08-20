@@ -1356,7 +1356,6 @@ router.post("/bookservice", async (req, res) => {
   }
 });
 */
-
 router.post("/bookservice", async (req, res) => {
   const {
     service,
