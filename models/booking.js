@@ -44,13 +44,14 @@ const bookingSchema = new mongoose.Schema(
     totalamount: Number,
     transactionid: String,
     userid: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
       required: false, // Make userid optional
     },
     guestUserId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       default: null,
       required: false,
     },
