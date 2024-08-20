@@ -949,7 +949,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     let query;
 
     // If userid is not provided or equals "guest", assume it's a guest user
-    if (!userid || userid === "guest") {
+    if (userid === undefined || userid === null || userid === "guest") {
       query = { userid: null }; // Guest users have userid as null
     } else if (mongoose.Types.ObjectId.isValid(userid)) {
       // For logged-in users with a valid ObjectId
