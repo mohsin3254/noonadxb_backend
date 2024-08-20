@@ -930,7 +930,7 @@ router.get("/getallbookings", async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings" });
   }
 });
-/*workinh without guest*/
+/*workinh without  guest
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -939,6 +939,26 @@ router.post("/getbookingbyuserid", async (req, res) => {
     const bookings = await Booking.find({ userid });
     res.json(bookings);
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});  
+*/
+
+router.post("/getbookingbyuserid", async (req, res) => {
+  const { userid } = req.body;
+
+  try {
+    if (!userid) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Handle the case when userid is null
+    const query = userid === "guest" ? { userid: null } : { userid };
+
+    const bookings = await Booking.find(query);
+    res.json(bookings);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
     res.status(500).json({ message: error.message });
   }
 });
