@@ -1209,31 +1209,24 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
-// routes/bookingRoute.js
-// Route to fetch bookings by userid
+// Fetch all bookings for a user or guest
 router.get("/mybookings", async (req, res) => {
-  const { userid } = req.query;
-
-  if (!userid) {
-    return res.status(400).json({ message: "User ID is required" });
-  }
-
   try {
-    // Check if userid is a valid ObjectId or UUID
-    let bookings;
-    if (mongoose.Types.ObjectId.isValid(userid)) {
-      // If it's a valid MongoDB ObjectId
-      bookings = await Booking.find({
-        userid: mongoose.Types.ObjectId(userid),
-      });
-    } else {
-      // If it's a UUID (guest user)
-      bookings = await Booking.find({ userid });
+    const { userid, guestUserId } = req.query;
+
+    if (!userid && !guestUserId) {
+      return res
+        .status(400)
+        .json({ message: "User ID or Guest User ID is required" });
     }
+
+    const query = userid ? { userid } : { userid: null }; // Fetch bookings for guest users
+
+    const bookings = await Booking.find(query).exec();
 
     res.json(bookings);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
