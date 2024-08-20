@@ -943,7 +943,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
   }
 });  
 */
-
 router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
@@ -952,12 +951,17 @@ router.post("/getbookingbyuserid", async (req, res) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const query = userid === "guest" || !userid ? { userid: null } : { userid };
+    // Adjust query handling if necessary
+    const query = userid === "guest" ? { userid: null } : { userid };
+
+    console.log("Querying with:", query); // Add more detailed logging if needed
 
     const bookings = await Booking.find(query);
+    console.log("Fetched bookings:", bookings); // Add more detailed logging if needed
+
     res.json(bookings);
   } catch (error) {
-    console.error("Error fetching bookings:", error.message, error.stack); // Detailed logging
+    console.error("Error fetching bookings:", error.message, error.stack);
     res.status(500).json({ message: "An internal server error occurred." });
   }
 });
