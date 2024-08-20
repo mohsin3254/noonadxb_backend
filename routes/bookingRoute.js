@@ -981,9 +981,10 @@ router.post("/getbookingbyuserid", async (req, res) => {
     // Respond with the bookings
     res.json(bookings);
   } catch (error) {
-    console.error("Error fetching bookings:", error.message, error.stack);
+    console.error("Error fetching bookings:", error); // Log the entire error object
     res.status(500).json({
       message: "An internal server error occurred while fetching bookings.",
+      error: error.message, // Include more details in the response
     });
   }
 });
