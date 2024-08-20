@@ -28,7 +28,7 @@ const Booking = mongoose.model("Booking", bookingSchema);
 module.exports = Booking;
 */
 
-/*Working absolutely fine
+/*Working absolutely fine*/
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
@@ -56,10 +56,9 @@ const bookingSchema = new mongoose.Schema(
 const Booking = mongoose.model("Booking", bookingSchema);
 
 module.exports = Booking;
-*/
 
 // models/Booking.js
-
+/*
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
@@ -92,3 +91,4 @@ const bookingSchema = new mongoose.Schema(
 const Booking = mongoose.model("Booking", bookingSchema);
 
 module.exports = Booking;
+*/
