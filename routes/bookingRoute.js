@@ -948,20 +948,18 @@ router.post("/getbookingbyuserid", async (req, res) => {
 
   try {
     // Validate the userid
-    if (!userid) {
+    if (!userid && userid !== null) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    // Log incoming request details
     console.log("Received request with UserID:", userid);
 
     // Define query based on the userid
     let query;
-    if (userid === "guest" || userid === null) {
-      // Handle null or 'guest' as a guest user
-      query = { userid: null };
+    if (userid === null) {
+      query = { userid: null }; // Query for guest bookings
     } else if (typeof userid === "string" && userid.trim() !== "") {
-      query = { userid };
+      query = { userid }; // Query for registered users
     } else {
       return res.status(400).json({ message: "Invalid User ID format" });
     }
@@ -971,7 +969,6 @@ router.post("/getbookingbyuserid", async (req, res) => {
     // Fetch bookings from the database
     const bookings = await Booking.find(query);
 
-    // Log fetched results
     console.log("Fetched bookings:", bookings);
 
     // Check if any bookings were found
@@ -984,10 +981,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
     // Respond with the bookings
     res.json(bookings);
   } catch (error) {
-    // Log error details
     console.error("Error fetching bookings:", error.message, error.stack);
-
-    // Respond with a generic error message
     res.status(500).json({
       message: "An internal server error occurred while fetching bookings.",
     });
