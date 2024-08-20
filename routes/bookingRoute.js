@@ -1209,18 +1209,29 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
-// routes/bookingRoute.js
+// Fetch bookings for a user or guest
 router.get("/mybookings", async (req, res) => {
+  const { userid, guestUserId } = req.query;
+
   try {
-    const { userid } = req.query;
-    if (!userid) {
-      return res.status(400).json({ message: "User ID is required" });
+    let bookings;
+    if (userid) {
+      // If userid is provided, fetch bookings for the logged-in user
+      bookings = await Booking.find({
+        userid: mongoose.Types.ObjectId(userid),
+      });
+    } else if (guestUserId) {
+      // If guestUserId is provided, fetch bookings for the guest
+      bookings = await Booking.find({ guestUserId });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "User ID or Guest User ID is required" });
     }
 
-    const bookings = await Booking.find({ userid });
-    res.send(bookings);
+    res.json(bookings);
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
@@ -1269,8 +1280,7 @@ router.post("/bookservice", async (req, res) => {
         address,
         totalamount: totalAmount,
         transactionid: uuidv4(),
-        userid:
-          userid && mongoose.Types.ObjectId.isValid(userid) ? userid : null,
+        userid: userid && mongoose.Types.Mixed.isValid(userid) ? userid : null,
         guestUserId: guestUserId || null,
       };
 
