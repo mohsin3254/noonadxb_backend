@@ -29,6 +29,7 @@ module.exports = Booking;
 */
 
 /*Working absolutely fine*/
+
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
@@ -43,7 +44,7 @@ const bookingSchema = new mongoose.Schema(
     totalamount: Number,
     transactionid: String,
     userid: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Mixed,
       ref: "User",
       default: null,
       required: false, // Make userid optional
