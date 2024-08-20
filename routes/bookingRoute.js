@@ -942,25 +942,31 @@ router.post("/getbookingbyuserid", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });  
-*/
-router.post("/getbookingbyuserid", async (req, res) => {
+*/ router.post("/getbookingbyuserid", async (req, res) => {
   const { userid } = req.body;
 
   try {
     let query;
 
+    // Check for guest user or valid MongoDB ObjectId
     if (!userid || userid === "guest") {
-      query = { userid: null }; // Query for guest bookings
+      query = { userid: null }; // Guest users have userid as null
+    } else if (mongoose.Types.ObjectId.isValid(userid)) {
+      // Valid MongoDB ObjectId for logged-in users
+      query = { userid: mongoose.Types.ObjectId(userid) };
     } else {
-      // Convert string to ObjectId if it's a valid user ID
-      if (mongoose.Types.ObjectId.isValid(userid)) {
-        query = { userid: mongoose.Types.ObjectId(userid) };
-      } else {
-        return res.status(400).json({ message: "Invalid User ID format" });
-      }
+      // Invalid UserID format
+      return res.status(400).json({ message: "Invalid User ID format" });
     }
 
+    // Log the query being executed
+    console.log("Executing query with:", query);
+
+    // Fetch bookings from the database
     const bookings = await Booking.find(query);
+
+    // Log the results
+    console.log("Fetched bookings:", bookings);
 
     if (bookings.length === 0) {
       return res
@@ -968,6 +974,7 @@ router.post("/getbookingbyuserid", async (req, res) => {
         .json({ message: "No bookings found for the specified user." });
     }
 
+    // Respond with the bookings
     res.json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
