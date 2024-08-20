@@ -952,14 +952,13 @@ router.post("/getbookingbyuserid", async (req, res) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    // Handle the case when userid is null
-    const query = userid === "guest" ? { userid: null } : { userid };
+    const query = userid === "guest" || !userid ? { userid: null } : { userid };
 
     const bookings = await Booking.find(query);
     res.json(bookings);
   } catch (error) {
-    console.error("Error fetching bookings:", error);
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching bookings:", error.message, error.stack); // Detailed logging
+    res.status(500).json({ message: "An internal server error occurred." });
   }
 });
 
