@@ -957,7 +957,8 @@ router.post("/getbookingbyuserid", async (req, res) => {
 
     // Define query based on the userid
     let query;
-    if (userid === "guest") {
+    if (userid === "guest" || userid === null) {
+      // Handle null or 'guest' as a guest user
       query = { userid: null };
     } else if (typeof userid === "string" && userid.trim() !== "") {
       query = { userid };
