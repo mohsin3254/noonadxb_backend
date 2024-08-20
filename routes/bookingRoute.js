@@ -1296,7 +1296,7 @@ router.post("/bookservice", async (req, res) => {
 });
 */
 
-/*working very fine */
+/*working very fine 
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1346,6 +1346,73 @@ router.post("/bookservice", async (req, res) => {
         newBookingData.userid = userid;
       }
 
+      const newBooking = new Booking(newBookingData);
+      await newBooking.save();
+
+      res.send("Payment Successful, Your Service is booked");
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+*/
+
+router.post("/bookservice", async (req, res) => {
+  const {
+    service,
+    name,
+    phone,
+    date,
+    time,
+    address,
+    totalAmount,
+    token,
+    userid,
+    guestUserId, // Add guestUserId to the request body
+  } = req.body;
+
+  try {
+    // Create a customer in Stripe
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id,
+    });
+
+    // Charge the customer
+    const payment = await stripe.charges.create(
+      {
+        amount: totalAmount * 100,
+        customer: customer.id,
+        currency: "AED",
+        receipt_email: token.email,
+      },
+      {
+        idempotencyKey: uuidv4(),
+      }
+    );
+
+    if (payment) {
+      // Prepare booking data
+      const newBookingData = {
+        service: service.name,
+        serviceid: service._id,
+        name,
+        phone,
+        date: moment(date, "MM-DD-YYYY").format("MM-DD-YYYY"),
+        time,
+        address,
+        totalamount: totalAmount,
+        transactionid: uuidv4(),
+      };
+
+      // Assign user ID or guest user ID based on availability
+      if (userid && mongoose.Types.ObjectId.isValid(userid)) {
+        newBookingData.userid = userid;
+      } else if (guestUserId) {
+        newBookingData.guestUserId = guestUserId;
+      }
+
+      // Create and save booking
       const newBooking = new Booking(newBookingData);
       await newBooking.save();
 
