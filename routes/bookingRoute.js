@@ -1210,6 +1210,7 @@ router.post("/bookservice", async (req, res) => {
 */
 
 // Fetch bookings for a user or guest
+/*
 router.get("/mybookings", async (req, res) => {
   const { userid, guestUserId } = req.query;
 
@@ -1234,9 +1235,9 @@ router.get("/mybookings", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
-
+*/
 // routes/bookingRoute.js
-
+/*
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1293,8 +1294,9 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
+*/
 
-/*working very fine
+/*working very fine */
 router.post("/bookservice", async (req, res) => {
   const {
     service,
@@ -1353,5 +1355,5 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-*/
+
 module.exports = router;
