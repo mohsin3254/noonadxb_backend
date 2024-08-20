@@ -1210,29 +1210,19 @@ router.post("/bookservice", async (req, res) => {
 */
 
 // routes/bookingRoute.js
-
 router.get("/mybookings", async (req, res) => {
   try {
-    const { userid, guestUserId } = req.query;
-
-    // Ensure at least one ID is provided
-    if (!userid && !guestUserId) {
-      return res
-        .status(400)
-        .json({ message: "User ID or Guest User ID is required" });
+    const { userid } = req.query;
+    if (!userid) {
+      return res.status(400).json({ message: "User ID is required" });
     }
 
-    const query = userid ? { userid } : { guestUserId };
-
-    const bookings = await Booking.find(query);
-
-    res.json(bookings);
+    const bookings = await Booking.find({ userid });
+    res.send(bookings);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 });
-
-module.exports = router;
 
 // routes/bookingRoute.js
 
@@ -1293,8 +1283,6 @@ router.post("/bookservice", async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 });
-
-module.exports = router;
 
 /*working very fine
 router.post("/bookservice", async (req, res) => {
